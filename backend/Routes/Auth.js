@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const { body, validationResult } = require("express-validator");
-
+const bcrypt = require("bcrypt");
 router.post(
   "/createuser",
   body("password", "Length should be minimum 5").isLength({ min: 5 }),
@@ -13,10 +13,12 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+    const salt=await bcrypt.genSalt(10);
+    let securepass=await bcrypt.hash(req.body.password,salt);
     try {
       await User.create({
         name: req.body.name,
-        password: req.body.password,
+        password: securepass,
         email: req.body.email,
         location: req.body.location,
       });
@@ -28,31 +30,34 @@ router.post(
   }
 );
 
-router.post("/loginuser",
-body("password", "Length should be minimum 5").isLength({ min: 5 }),
-body("email", "Should be a Valid Email").isEmail(),
-async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  let email = req.body.email;
-  try {
-    let userdata = await User.findOne({ email });
-    if (!userdata) {
-      return res
-        .status(400)
-        .json({ errors: "Try logging with correct credentials" });
+router.post(
+  "/loginuser",
+  body("password", "Length should be minimum 5").isLength({ min: 5 }),
+  body("email", "Should be a Valid Email").isEmail(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
-    if (!req.body.password === userdata.password) {
-      return res
-        .status(400)
-        .json({ errors: "Try logging with correct credentials" });
+    let email = req.body.email;
+    try {
+      let userdata = await User.findOne({ email });
+      if (!userdata) {
+        return res
+          .status(400)
+          .json({ errors: "Try logging with correct credentials" });
+      }
+      if (!req.body.password === userdata.password) {
+        return res
+          .status(400)
+          .json({ errors: "Try logging with correct credentials" });
+      }
+      console.log(userdata);
+      return res.json({ success: true });
+    } catch (error) {
+      return res.json({ success: false });
     }
-    return res.json({ success: true });
-  } catch(error){
-    res.json({success:false})
   }
-});
+);
 
 module.exports = router;

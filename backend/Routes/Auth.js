@@ -3,6 +3,8 @@ const router = express.Router();
 const User = require("../models/User");
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
+const jwt=require('jsonwebtoken')
+const jwtSecret="Mynameisfoodorderingapp"
 router.post(
   "/createuser",
   body("password", "Length should be minimum 5").isLength({ min: 5 }),
@@ -47,13 +49,20 @@ router.post(
           .status(400)
           .json({ errors: "Try logging with correct credentials" });
       }
-      if (!req.body.password === userdata.password) {
+      const pwdCompare=await bcrypt.compare(req.body.password,userdata.password)
+      if (!pwdCompare) {
         return res
           .status(400)
           .json({ errors: "Try logging with correct credentials" });
       }
-      console.log(userdata);
-      return res.json({ success: true });
+      const data={
+        user:{
+          id:userdata.id
+        }
+      }
+      const authToken=jwt.sign(data,jwtSecret)
+      // console.log(userdata);
+      return res.json({ success: true,authToken:authToken});
     } catch (error) {
       return res.json({ success: false });
     }

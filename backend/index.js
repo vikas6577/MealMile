@@ -13,6 +13,7 @@ app.get('/', (req, res) => {
 app.use(express.json())
 app.use('/api',require("./Routes/Auth"));
 app.use('/api',require("./Routes/DisplayData"));
+app.use('/api',require("./Routes/OrderData"));
 
 app.listen(port,function (err) {
   if(err) console.log("Error in server setup");

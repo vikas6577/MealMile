@@ -8,7 +8,7 @@ export default function MyOrder() {
     await fetch("http://localhost:5000/api/myorderData", {
       // credentials: 'include',
       // Origin:"http://localhost:3000/login",
-      method: "GET",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
@@ -57,7 +57,7 @@ export default function MyOrder() {
                                       maxHeight: "360px",
                                     }}
                                   >
-                                    <img
+                                    {/* <img
                                       src={arrayData.img}
                                       className="card-img-top"
                                       alt="..."
@@ -65,7 +65,7 @@ export default function MyOrder() {
                                         height: "120px",
                                         objectFit: "fill",
                                       }}
-                                    />
+                                    /> */}
                                     <div className="card-body">
                                       <h5 className="card-title">
                                         {arrayData.name}
